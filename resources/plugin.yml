@@ -1,0 +1,8 @@
+name: BIWarp
+author: 8BookIt8
+version: 0.0.1
+main: com.bookit.BIWarp.BIWarp
+
+commands:
+  워프:
+    description: 워프 관리 명령어
