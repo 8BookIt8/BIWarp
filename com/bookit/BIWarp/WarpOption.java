@@ -34,7 +34,7 @@ public class WarpOption {
             } else if (arg.contains("서브타이틀")) {
                 this.subtitle = BIWarp.format(arg.split(":")[1], true);
             } else if (arg.contains("딜레이")) {
-                this.delay = Integer.parseInt(arg.split(":")[1]);
+                this.delay = Math.abs(Integer.parseInt(arg.split(":")[1]));
             }
         }
     }
@@ -48,7 +48,7 @@ public class WarpOption {
         this.description = (String) map.get("description");
         this.title = (String) map.get("title");
         this.subtitle = (String) map.get("subtitle");
-        this.delay = (int) map.get("delay");
+        this.delay = Math.abs((int) map.get("delay"));
     }
 
     public Location getLocation() {

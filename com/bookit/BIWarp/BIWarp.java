@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BIWarp extends JavaPlugin {
+
     @Override
     public void onEnable() {
         this.getServer().getLogger().info("BIWarp 플러그인이 정상적으로 활성화되었습니다.");

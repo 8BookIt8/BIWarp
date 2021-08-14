@@ -69,13 +69,17 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
                 return false;
             }
 
-            if (this.removeWarp(strings, (Player) commandSender)) {
+            if (this.removeWarp(strings)) {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "워프를 제거했습니다.");
                 return false;
             } else {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "존재하지 않는 워프명입니다.");
                 return true;
             }
+        } else if(strings[0].equals("목록")) {
+            int page = strings.length >= 2 ? Integer.parseInt(strings[1]) - 1 : 0;
+            this.showWarpList(commandSender, page);
+            return true;
         } else if(strings[0].equals("이동")) {
             if (strings.length == 1) {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GOLD + "[ BIWarp ] 워프 이동 <워프명>" + ChatColor.WHITE +  " - 목적지로 순간이동합니다.");
@@ -88,7 +92,7 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
             }
 
             if (!this.useWarp(strings, (Player) commandSender)) {
-                commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "존재하지 않는 워프명입니다.");
+                commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "존재하지 않는 워프명이거나 이동할 수 없는 목적지입니다.");
                 return false;
             }
             return true;
@@ -156,7 +160,7 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
         return true;
     }
 
-    protected boolean removeWarp(String[] strings, Player player) {
+    protected boolean removeWarp(String[] strings) {
         String name = strings[1];
         for (int i = 0; i < strings.length; i++) {
             if (i < 2) {
@@ -176,6 +180,45 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
         return true;
     }
 
+    protected void showWarpList(CommandSender commandSender, int page) {
+        ArrayList<String> warps = new ArrayList<String>(this.plugin.getConfig().getKeys(false));
+        int page_max = (int) Math.ceil((double) warps.size() / 5) - 1;
+        page_max = page_max >= 0 ? page_max : 0;
+        page = page >= 0 ? page : 0;
+        page = page <= page_max ? page : page_max;
+
+        StringBuilder str = new StringBuilder("&l&6===== [ &f");
+        str.append(page_max + 1);
+        str.append(" &6페이지 중 &f");
+        str.append(page + 1);
+        str.append(" &6] =====\n");
+        for (int i = 0; i < 5; i++) {
+            int n = i + (page * 5);
+            if(warps.size() <= n) {
+                break;
+            }
+
+            String name = warps.get(n);
+            MemorySection warp = (MemorySection) this.plugin.getConfig().get(name);
+            WarpOption option = new WarpOption(warp.getValues(true));
+
+            String description = option.getDescription() != null ? option.getDescription() : name;
+            int delay = option.getDelay();
+
+            StringBuilder inform = new StringBuilder("&l&6[ BIWarp ] &f" + name);
+            inform.append(" : &7" + description);
+            if (delay != 0) {
+                inform.append(", 딜레이 : " + option.getDelay());
+            }
+            inform.append("\n");
+
+            str.append(inform);
+        }
+        str.append("&l&6=======================");
+
+        commandSender.sendMessage(BIWarp.format(str.toString(), true));
+    }
+
     protected boolean useWarp(String[] strings, Player player) {
         String name = strings[1];
         for (int i = 0; i < strings.length; i++) {
@@ -192,6 +235,10 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
 
         MemorySection warp = (MemorySection) this.plugin.getConfig().get(name);
         Map<String, Object> options = warp.getValues(true);
+
+        if (Bukkit.getWorld((String) options.get("world")) == null) {
+            return false;
+        }
 
         PlayerWarpEvent event = new PlayerWarpEvent(player, name, new WarpOption(options));
         this.plugin.getServer().getPluginManager().callEvent(event);
@@ -219,15 +266,17 @@ class WarpTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        WarpOption option = event.getOptions();
-        Location loc = option.getLocation();
-        Player player = event.getPlayer();
+        if (!event.isCancelled() && event.getPlayer() != null) {
+            WarpOption option = event.getOptions();
+            Location loc = option.getLocation();
+            Player player = event.getPlayer();
 
-        event.getPlayer().teleport(option.getLocation());
+            event.getPlayer().teleport(option.getLocation());
 
-        event.getPlayer().sendTitle(option.getTitle(), option.getSubtitle());
-        loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
+            event.getPlayer().sendTitle(option.getTitle(), option.getSubtitle());
+            loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
 
-        player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "성공적으로 이동했습니다.");
+            player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "성공적으로 이동했습니다.");
+        }
     }
 }
