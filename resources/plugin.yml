@@ -6,3 +6,4 @@ main: com.bookit.BIWarp.BIWarp
 commands:
   워프:
     description: 워프 관리 명령어
+    aliases: ["warp"]
