@@ -2,16 +2,22 @@ package com.bookit.BIWarp.commands;
 
 import com.bookit.BIWarp.BIWarp;
 import com.bookit.BIWarp.WarpOption;
+import com.bookit.BIWarp.events.PlayerWarpEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.util.*;
 
 public class WarpCommand implements CommandExecutor, TabExecutor {
@@ -22,6 +28,7 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
         if (strings.length == 0) {
             commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GOLD + "[ BIWarp ] 워프 생성 <워프명> [옵션...]" + ChatColor.WHITE +  " - 새로운 워프를 생성합니다.");
             commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GOLD + "[ BIWarp ] 워프 제거 <워프명>" + ChatColor.WHITE +  " - 워프를 제거합니다.");
+            commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GOLD + "[ BIWarp ] 워프 이동 <워프명>" + ChatColor.WHITE +  " - 목적지로 순간이동합니다.");
             return false;
         }
 
@@ -44,25 +51,13 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
                 return false;
             }
 
-            String name = WarpOption.makeSpace(strings[1]);
-            if (this.plugin.getConfig().getString(name) != null) {
+            if (this.createWarp(strings, (Player) commandSender)) {
+                commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "워프를 생성했습니다.");
+                return true;
+            } else {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "이미 존재하는 워프명입니다.");
                 return false;
             }
-
-            HashMap<String, Object> options = new WarpOption(strings).toMap();
-            Location loc = ((Player) commandSender).getLocation();
-            options.put("world", loc.getWorld().getName());
-            options.put("x", loc.getX());
-            options.put("y", loc.getY());
-            options.put("z", loc.getZ());
-
-            this.plugin.getConfig().set(name, options);
-
-            this.plugin.saveConfig();
-            this.plugin.reloadConfig();
-            commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + name + " 워프를 생성했습니다.");
-            return true;
         } else if(strings[0].equals("제거")) {
             if (strings.length == 1) {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GOLD + "[ BIWarp ] 워프 제거 <워프명>" + ChatColor.WHITE +  " - 워프를 제거합니다.");
@@ -74,25 +69,13 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
                 return false;
             }
 
-            String name = strings[1];
-            for (int i = 0; i < strings.length; i++) {
-                if (i < 2) {
-                    continue;
-                }
-
-                name = name + " " + strings[i];
-            }
-
-            if (this.plugin.getConfig().getString(name) == null) {
-                commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "존재하지 않는 워프명입니다.");
+            if (this.removeWarp(strings, (Player) commandSender)) {
+                commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "워프를 제거했습니다.");
                 return false;
+            } else {
+                commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "존재하지 않는 워프명입니다.");
+                return true;
             }
-
-            this.plugin.getConfig().set(name, null);
-            this.plugin.saveConfig();
-            this.plugin.reloadConfig();
-            commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + name + " 워프를 제거했습니다.");
-            return true;
         } else if(strings[0].equals("이동")) {
             if (strings.length == 1) {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GOLD + "[ BIWarp ] 워프 이동 <워프명>" + ChatColor.WHITE +  " - 목적지로 순간이동합니다.");
@@ -104,24 +87,10 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
                 return false;
             }
 
-            String name = strings[1];
-            for (int i = 0; i < strings.length; i++) {
-                if (i < 2) {
-                    continue;
-                }
-
-                name = name + " " + strings[i];
-            }
-
-            if (this.plugin.getConfig().getString(name) == null) {
+            if (!this.useWarp(strings, (Player) commandSender)) {
                 commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + "존재하지 않는 워프명입니다.");
                 return false;
             }
-
-            Bukkit.broadcastMessage(name);
-            Map<String, Object> options = this.plugin.getConfig().getValues(true);
-            ((Player) commandSender).teleport(new Location(Bukkit.getWorld((String) options.get(name + ".world")), (double) options.get(name + ".x"), (double) options.get(name + ".y"), (double) options.get(name + ".z")));
-            commandSender.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + name + " 성공적으로 이동했습니다.");
             return true;
         }
         return true;
@@ -165,5 +134,100 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
         }
 
         return null;
+    }
+
+    protected boolean createWarp(String[] strings, Player player) {
+        String name = BIWarp.format(strings[1], false);
+
+        if (this.plugin.getConfig().getString(name) != null) {
+            return false;
+        }
+
+        HashMap<String, Object> options = new WarpOption(strings).toMap();
+        Location loc = player.getLocation();
+        options.put("world", loc.getWorld().getName());
+        options.put("x", loc.getX());
+        options.put("y", loc.getY());
+        options.put("z", loc.getZ());
+
+        this.plugin.getConfig().set(name, options);
+        this.plugin.saveConfig();
+        this.plugin.reloadConfig();
+        return true;
+    }
+
+    protected boolean removeWarp(String[] strings, Player player) {
+        String name = strings[1];
+        for (int i = 0; i < strings.length; i++) {
+            if (i < 2) {
+                continue;
+            }
+
+            name = name + " " + strings[i];
+        }
+
+        if (this.plugin.getConfig().getString(name) == null) {
+            return false;
+        }
+
+        this.plugin.getConfig().set(name, null);
+        this.plugin.saveConfig();
+        this.plugin.reloadConfig();
+        return true;
+    }
+
+    protected boolean useWarp(String[] strings, Player player) {
+        String name = strings[1];
+        for (int i = 0; i < strings.length; i++) {
+            if (i < 2) {
+                continue;
+            }
+
+            name = name + " " + strings[i];
+        }
+
+        if (this.plugin.getConfig().getString(name) == null) {
+            return false;
+        }
+
+        MemorySection warp = (MemorySection) this.plugin.getConfig().get(name);
+        Map<String, Object> options = warp.getValues(true);
+
+        PlayerWarpEvent event = new PlayerWarpEvent(player, name, new WarpOption(options));
+        this.plugin.getServer().getPluginManager().callEvent(event);
+//
+        WarpTask task = new WarpTask(event);
+        int delay = event.getOptions().getDelay();
+        if (delay == 0) {
+            task.run();
+            return true;
+        }
+
+        task.runTaskLater(this.plugin, event.getOptions().getDelay() * 20);
+        player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + delay + "초 후 워프합니다.");
+        return true;
+    }
+}
+
+class WarpTask extends BukkitRunnable {
+
+    private PlayerWarpEvent event;
+
+    public WarpTask(PlayerWarpEvent event) {
+        this.event = event;
+    }
+
+    @Override
+    public void run() {
+        WarpOption option = event.getOptions();
+        Location loc = option.getLocation();
+        Player player = event.getPlayer();
+
+        event.getPlayer().teleport(option.getLocation());
+
+        event.getPlayer().sendTitle(option.getTitle(), option.getSubtitle());
+        loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
+
+        player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "성공적으로 이동했습니다.");
     }
 }
