@@ -3,7 +3,7 @@ package com.bookit.BIWarp;
 import java.util.*;
 
 public class WarpManager {
-    protected static Map<String, Warp> warpMap = new HashMap<String, Warp>();
+    private static final Map<String, Warp> warpMap = new HashMap<>();
 
     /**
      * Add warp to warpMap

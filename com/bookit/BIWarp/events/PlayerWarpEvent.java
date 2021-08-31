@@ -7,10 +7,10 @@ import org.bukkit.event.HandlerList;
 
 public class PlayerWarpEvent extends BIWarpEvent implements Cancellable {
 
-    protected boolean isCancel = false;
+    private boolean isCancel = false;
 
-    protected Player player;
-    protected Warp warp;
+    private final Player player;
+    private final Warp warp;
 
     public PlayerWarpEvent(Player player, Warp warp) {
         this.player = player;

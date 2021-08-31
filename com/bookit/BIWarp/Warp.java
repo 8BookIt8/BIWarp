@@ -8,12 +8,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Map;
 
 public class Warp {
-    protected String name = null;
+    protected String name;
 
-    protected String world = null;
-    protected double x = 0;
-    protected double y = 0;
-    protected double z = 0;
+    protected String world;
+    protected double x;
+    protected double y;
+    protected double z;
 
     protected String description = null;
     protected String title = null;
@@ -57,8 +57,7 @@ public class Warp {
      * @return loc Location of warp
      */
     public Location getLocation() {
-        Location loc = new Location(Bukkit.getWorld(world), x, y, z);
-        return loc;
+        return new Location(Bukkit.getWorld(world), x, y, z);
     }
 
     /**
@@ -122,7 +121,7 @@ public class Warp {
             return true;
         }
 
-        task.runTaskLater(Bukkit.getPluginManager().getPlugin("BIWarp"), delay * 20);
+        task.runTaskLater(Bukkit.getPluginManager().getPlugin("BIWarp"), delay * 20L);
         player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + delay + "초 후 워프합니다.");
         return true;
     }
@@ -130,7 +129,7 @@ public class Warp {
 
 class WarpTask extends BukkitRunnable {
 
-    private PlayerWarpEvent event;
+    private final PlayerWarpEvent event;
 
     public WarpTask(PlayerWarpEvent event) {
         this.event = event;

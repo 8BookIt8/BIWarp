@@ -41,7 +41,7 @@ public class BIWarp extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        List<String> warpList = new ArrayList<String>(WarpManager.getMap().keySet());
+        List<String> warpList = new ArrayList<>(WarpManager.getMap().keySet());
         if (warpList == null) {
             return ;
         }
