@@ -121,7 +121,7 @@ public class Warp {
             return true;
         }
 
-        task.runTaskLater(Bukkit.getPluginManager().getPlugin("BIWarp"), delay * 20L);
+        task.runTaskLater(BIWarp.getInstance(), delay * 20L);
         player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + delay + "초 후 워프합니다.");
         return true;
     }

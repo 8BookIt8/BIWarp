@@ -57,10 +57,7 @@ public class WarpManager {
      * @return True if warp is already registered
      */
     public static boolean isRegistered(Warp warp) {
-        if (warpMap.containsKey(warp.getName())) {
-            return true;
-        }
-        return false;
+        return warpMap.containsKey(warp.getName());
     }
 
     /**
@@ -70,10 +67,7 @@ public class WarpManager {
      * @return True if warp is already registered
      */
     public static boolean isRegistered(String name) {
-        if (warpMap.containsKey(name.toLowerCase())) {
-            return true;
-        }
-        return false;
+        return warpMap.containsKey(name.toLowerCase());
     }
 
     /**
@@ -96,8 +90,7 @@ public class WarpManager {
             return null;
         }
 
-        Warp warp = warpMap.get(name.toLowerCase());
-        return warp;
+        return warpMap.get(name.toLowerCase());
     }
 
     /**

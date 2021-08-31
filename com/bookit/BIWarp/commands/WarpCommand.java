@@ -3,7 +3,6 @@ package com.bookit.BIWarp.commands;
 import com.bookit.BIWarp.BIWarp;
 import com.bookit.BIWarp.Warp;
 import com.bookit.BIWarp.WarpManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -15,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class WarpCommand implements CommandExecutor, TabExecutor {
-    private final BIWarp plugin = (BIWarp) Bukkit.getPluginManager().getPlugin("BIWarp");
+    private final BIWarp plugin = BIWarp.getInstance();
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
