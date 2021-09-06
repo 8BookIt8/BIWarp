@@ -3,7 +3,6 @@ package com.bookit.BIWarp.commands;
 import com.bookit.BIWarp.BIWarp;
 import com.bookit.BIWarp.Warp;
 import com.bookit.BIWarp.WarpManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -15,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class WarpCommand implements CommandExecutor, TabExecutor {
-    private BIWarp plugin = (BIWarp) Bukkit.getPluginManager().getPlugin("BIWarp");
+    private final BIWarp plugin = BIWarp.getInstance();
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -242,9 +241,9 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
     protected void showWarpList(CommandSender commandSender, int page) {
         List<Warp> warps = new ArrayList<Warp>(WarpManager.getMap().values());
         int page_max = (int) Math.ceil((double) warps.size() / 5) - 1;
-        page_max = page_max >= 0 ? page_max : 0;
-        page = page >= 0 ? page : 0;
-        page = page <= page_max ? page : page_max;
+        page_max = Math.max(page_max, 0);
+        page = Math.max(page, 0);
+        page = Math.min(page, page_max);
 
         StringBuilder str = new StringBuilder("&l&6===== [ &f");
         str.append(page_max + 1);
