@@ -1,6 +1,6 @@
 name: BIWarp
 author: 8BookIt8
-version: 1.0.0
+version: 1.0.1
 main: com.bookit.BIWarp.BIWarp
 
 commands:

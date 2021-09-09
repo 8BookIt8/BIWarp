@@ -3,7 +3,6 @@ package com.bookit.BIWarp.commands;
 import com.bookit.BIWarp.BIWarp;
 import com.bookit.BIWarp.Warp;
 import com.bookit.BIWarp.WarpManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -15,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class WarpCommand implements CommandExecutor, TabExecutor {
-    private BIWarp plugin = (BIWarp) Bukkit.getPluginManager().getPlugin("BIWarp");
+    private final BIWarp plugin = BIWarp.getInstance();
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -106,7 +105,7 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
-        List<String> arguments = new ArrayList<String>();
+        List<String> arguments = new ArrayList<>();
         if (strings.length == 1) {
             List<String> all = Arrays.asList("생성", "제거", "목록", "이동");
             for (String arg : all) {
@@ -117,7 +116,7 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
             return arguments;
         } else if (strings.length == 2) {
             if (strings[0].equals("제거") || strings[0].equals("이동")) {
-                List<String> list = new ArrayList<String>(WarpManager.getMap().keySet());
+                List<String> list = new ArrayList<>(WarpManager.getMap().keySet());
                 for (String arg : list) {
                     if (arg.toLowerCase().startsWith(strings[1].toLowerCase())) {
                         arguments.add(arg);
@@ -183,7 +182,7 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
      * @return option Option of warp
      */
     protected Map<String, Object> getOptionMapByArgs(String[] args) {
-        Map<String, Object> option = new HashMap<String, Object>();
+        Map<String, Object> option = new HashMap<>();
         for (int i = 0; i < args.length; i++) {
             if (i <= 1) {
                 continue;
@@ -240,11 +239,11 @@ public class WarpCommand implements CommandExecutor, TabExecutor {
      * @param page          Page to show
      */
     protected void showWarpList(CommandSender commandSender, int page) {
-        List<Warp> warps = new ArrayList<Warp>(WarpManager.getMap().values());
+        List<Warp> warps = new ArrayList<>(WarpManager.getMap().values());
         int page_max = (int) Math.ceil((double) warps.size() / 5) - 1;
-        page_max = page_max >= 0 ? page_max : 0;
-        page = page >= 0 ? page : 0;
-        page = page <= page_max ? page : page_max;
+        page_max = Math.max(0, page_max);
+        page = Math.max(0, page);
+        page = Math.min(page, page_max);
 
         StringBuilder str = new StringBuilder("&l&6===== [ &f");
         str.append(page_max + 1);

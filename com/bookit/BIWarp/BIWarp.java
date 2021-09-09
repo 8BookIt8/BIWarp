@@ -15,14 +15,22 @@ import java.util.List;
 import java.util.Map;
 
 public class BIWarp extends JavaPlugin {
+    private static BIWarp plugin;
+
+    public static BIWarp getInstance() {
+        return plugin;
+    }
+
     @Override
     public void onEnable() {
+        plugin = this;
+
         saveDefaultConfig();
 
         getCommand("워프").setExecutor(new WarpCommand());
 
-        ArrayList<String> warpList = new ArrayList<String>(getConfig().getKeys(false));
-        if (warpList == null) {
+        ArrayList<String> warpList = new ArrayList<>(getConfig().getKeys(false));
+        if (warpList.isEmpty()) {
             return ;
         }
 
@@ -41,8 +49,8 @@ public class BIWarp extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        List<String> warpList = new ArrayList<String>(WarpManager.getMap().keySet());
-        if (warpList == null) {
+        List<String> warpList = new ArrayList<>(WarpManager.getMap().keySet());
+        if (warpList.isEmpty()) {
             return ;
         }
 
@@ -75,7 +83,6 @@ public class BIWarp extends JavaPlugin {
      * @return True if registration is successful
      */
     public static boolean registerShortCommand(String command) {
-        BIWarp plugin = (BIWarp) Bukkit.getPluginManager().getPlugin("BIWarp");
         command = command.toLowerCase();
 
         try {
@@ -101,7 +108,6 @@ public class BIWarp extends JavaPlugin {
      * @return True if unregistration is successful
      */
     public static boolean unregisterShortCommand(String command) {
-        BIWarp plugin = (BIWarp) Bukkit.getPluginManager().getPlugin("BIWarp");
         command = command.toLowerCase();
 
         try {

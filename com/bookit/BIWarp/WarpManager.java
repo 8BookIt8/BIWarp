@@ -3,7 +3,7 @@ package com.bookit.BIWarp;
 import java.util.*;
 
 public class WarpManager {
-    protected static Map<String, Warp> warpMap = new HashMap<String, Warp>();
+    private final static Map<String, Warp> warpMap = new HashMap<>();
 
     /**
      * Add warp to warpMap
@@ -57,10 +57,7 @@ public class WarpManager {
      * @return True if warp is already registered
      */
     public static boolean isRegistered(Warp warp) {
-        if (warpMap.containsKey(warp.getName())) {
-            return true;
-        }
-        return false;
+        return warpMap.containsKey(warp.getName());
     }
 
     /**
@@ -70,10 +67,7 @@ public class WarpManager {
      * @return True if warp is already registered
      */
     public static boolean isRegistered(String name) {
-        if (warpMap.containsKey(name.toLowerCase())) {
-            return true;
-        }
-        return false;
+        return warpMap.containsKey(name.toLowerCase());
     }
 
     /**
@@ -89,15 +83,13 @@ public class WarpManager {
      * Get warp by name
      *
      * @param name Name of warp
-     * @return warp Warp
+     * @return Warp
      */
     public static Warp getWarp(String name) {
         if (!isRegistered(name.toLowerCase())) {
             return null;
         }
-
-        Warp warp = warpMap.get(name.toLowerCase());
-        return warp;
+        return warpMap.get(name.toLowerCase());
     }
 
     /**
