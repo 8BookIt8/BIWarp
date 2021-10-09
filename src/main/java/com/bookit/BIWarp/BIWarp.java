@@ -2,7 +2,6 @@ package com.bookit.BIWarp;
 
 import com.bookit.BIWarp.commands.ShortWarpCommand;
 import com.bookit.BIWarp.commands.WarpCommand;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
